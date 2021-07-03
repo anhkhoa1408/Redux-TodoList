@@ -1,6 +1,8 @@
 import React, { Component } from "react";
 import "../components/fontawesome/Icon.js";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { connect } from "react-redux";
+import * as actions from "./../actions/index";
 
 class Search extends Component {
   constructor(props) {
@@ -50,4 +52,18 @@ class Search extends Component {
   }
 }
 
-export default Search;
+const mapStateToProps = (state) => {
+    return {
+        search: state.search
+    }
+}
+
+const mapDispatchToProps = (dispatch, action) => {
+    return {
+        onSearch: (keyword) => {
+            dispatch(actions.search(keyword))
+        }
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Search);

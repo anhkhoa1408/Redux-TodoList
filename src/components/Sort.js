@@ -3,6 +3,9 @@ import "../components/fontawesome/Icon.js";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "../App.css";
 
+import {connect} from "react-redux";
+import * as actions from "./../actions"
+
 class Sort extends Component {
   constructor(props) {
     super(props);
@@ -22,10 +25,15 @@ class Sort extends Component {
   };
 
   onClick = (sortBy, sortValue) => {
-    this.props.onSort(sortBy, sortValue);
+    var sort = {
+        name: sortBy,
+        value: parseInt(sortValue)
+    }
+    this.props.onSort(sort);
   };
 
   render() {
+    var {sort} = this.props;
     return (
       <div className="col-xs-6 col-sm-6 col-md-6 col-lg-6">
         <div className="dropdown">
@@ -54,7 +62,7 @@ class Sort extends Component {
                 href="/#"
                 role="button"
                 className={
-                  this.props.sortBy === "name" && this.props.sortValue === 1
+                  sort.name === "name" && sort.value === 1
                     ? "sort-selected"
                     : ""
                 }
@@ -71,7 +79,7 @@ class Sort extends Component {
                 href="/#"
                 role="button"
                 className={
-                  this.props.sortBy === "name" && this.props.sortValue === -1
+                  sort.name === "name" && sort.value === -1
                     ? "sort-selected"
                     : ""
                 }
@@ -89,7 +97,7 @@ class Sort extends Component {
                 href="/#"
                 role="button"
                 className={
-                  this.props.sortBy === "status" && this.props.sortValue === 1
+                  sort.name === "status" && sort.value === 1
                     ? "sort-selected"
                     : ""
                 }
@@ -102,7 +110,7 @@ class Sort extends Component {
                 href="/#"
                 role="button"
                 className={
-                  this.props.sortBy === "status" && this.props.sortValue === -1
+                  sort.name === "status" && sort.value === -1
                     ? "sort-selected"
                     : ""
                 }
@@ -117,4 +125,18 @@ class Sort extends Component {
   }
 }
 
-export default Sort;
+const mapStateToProps = (state) => {
+    return {
+        sort: state.sort
+    }
+}
+
+const mapDispatchToProps = (dispatch, action) => {
+    return {
+        onSort: (sort) => {
+            dispatch(actions.sort(sort))
+        }
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Sort);

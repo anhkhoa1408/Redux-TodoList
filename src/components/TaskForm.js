@@ -1,6 +1,10 @@
 import React, { Component } from "react";
 import "../components/fontawesome/Icon.js";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import "../App.css";
+
+import { connect } from "react-redux";
+import * as actions from "./../actions/index";
 
 const myStyle = {
   textAlign: "center",
@@ -25,27 +29,27 @@ class TaskForm extends Component {
     };
   }
 
-  componentDidMount() {
-    var { taskEditting } = this.props;
-    if (taskEditting) {
-      var id = taskEditting.id;
-      var name = taskEditting.name;
-      var status = taskEditting.status;
-      this.setState({
-        id: id,
-        name: name,
-        status: status,
-      });
-    }
-  }
+  // componentDidMount() {
+  //   var { itemEditting } = this.props;
+  //   if (itemEditting) {
+  //     var id = itemEditting.id;
+  //     var name = itemEditting.name;
+  //     var status = itemEditting.status;
+  //     this.setState({
+  //       id: id,
+  //       name: name,
+  //       status: status,
+  //     });
+  //   }
+  // }
 
   static getDerivedStateFromProps(props, state) {
-    if (props.taskEditting) {
-      if (props.taskEditting.id !== state.id) {
+    if (props.itemEditting) {
+      if (props.itemEditting.id !== state.id) {
         return {
-          id: props.taskEditting.id,
-          name: props.taskEditting.name,
-          status: props.taskEditting.status,
+          id: props.itemEditting.id,
+          name: props.itemEditting.name,
+          status: props.itemEditting.status,
         };
       }
     } else {
@@ -53,14 +57,14 @@ class TaskForm extends Component {
         return {
           id: "",
           name: "",
-          status: true,
+          status: false,
         };
       }
     }
     return null;
   }
 
-  onCloseForm = () => this.props.onCloseForm();
+  onCloseForm = () => this.props.onClose();
 
   onChange = (e) => {
     var target = e.target;
@@ -69,85 +73,113 @@ class TaskForm extends Component {
     this.setState({
       [name]: value,
     });
+    // console.log(this.state)
   };
 
   onClear = (e) => {
     e.preventDefault();
     this.setState({
+      id: "",
       name: "",
-      status: true,
+      status: false,
     });
   };
 
   onSubmit = (e) => {
     e.preventDefault();
-    var data = {
-      id: this.state.id,
-      name: this.state.name,
-      status: this.state.status === "true" ? true : false,
-    };
-    this.props.onSubmit(data);
+    this.props.onSaveTask(this.state);
+    // this.onClear()
+    this.setState({
+      id: "",
+      name: "",
+      status: false,
+    });
     this.onCloseForm();
   };
 
   render() {
-    var { id } = this.state;
-    return (
-      <div className="card p-4">
-        <div className="card-body">
-          <h5 className="card-title bg-warning" style={HeaderStyle}>
-            {id === "" ? "Add Task" : "Update Task"}
-            <FontAwesomeIcon
-              icon="times"
-              className="ml-5"
-              style={myStyle}
-              onClick={this.onCloseForm}
-            />
-          </h5>
-          <form>
-            <div className="form-group">
-              <label>Name :</label>
-              <input
-                type="text"
-                className="form-control"
-                name="name"
-                value={this.state.name}
-                onChange={this.onChange}
+    var { isDisplayForm} = this.props;
+    if (isDisplayForm === true) {
+      var { id } = this.state;
+      return (
+        <div className="card p-4">
+          <div className="card-body">
+            <h5 className="card-title bg-warning" style={HeaderStyle}>
+              {id === "" ? "Add Task" : "Update Task"}
+              <FontAwesomeIcon
+                icon="times"
+                className="ml-5"
+                style={myStyle}
+                onClick={this.onCloseForm}
               />
-            </div>
-            <label>Status :</label>
-            <select
-              className="form-control"
-              required="required"
-              name="status"
-              value={this.state.status}
-              onChange={this.onChange}
-            >
-              <option value={true}>Active</option>
-              <option value={false}>Passive</option>
-            </select>
-            <br />
-            <div className="text-center">
-              <button
-                type="submit"
-                onClick={this.onSubmit}
-                className="btn btn-warning me-5"
+            </h5>
+            <form>
+              <div className="form-group">
+                <label>Name :</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  name="name"
+                  value={this.state.name}
+                  onChange={this.onChange}
+                />
+              </div>
+              <label>Status :</label>
+              <select
+                className="form-control"
+                required="required"
+                name="status"
+                value={this.state.status}
+                onChange={this.onChange}
               >
-                Save
-              </button>
-              <button
-                type="submit"
-                onClick={this.onClear}
-                className="btn btn-danger"
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
+                <option value={true}>Active</option>
+                <option value={false}>Passive</option>
+              </select>
+              <br />
+              <div className="text-center">
+                <button
+                  type="submit"
+                  onClick={this.onSubmit}
+                  className="btn btn-warning me-5"
+                >
+                  Save
+                </button>
+                <button
+                  type="submit"
+                  onClick={this.onClear}
+                  className="btn btn-danger"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
-      </div>
-    );
+      );
+    } else {
+      return null;
+    }
   }
 }
+// chuyen state tu store thanh props cua component
+const mapStateToProps = (state) => {
+  return {
+    isDisplayForm: state.isDisplayForm,
+    itemEditting: state.itemEditting
+  };
+};
 
-export default TaskForm;
+// chuyen action thanh props
+const mapDispatchToProps = (dispatch, props) => {
+  return {
+    onSaveTask: (task) => {
+      dispatch(actions.saveTask(task));
+    },
+    onClose: () => {
+      dispatch(actions.closeForm());
+    },
+  };
+};
+
+// Tham so thu 2 cua connect la 1 action
+export default connect(mapStateToProps, mapDispatchToProps)(TaskForm);
